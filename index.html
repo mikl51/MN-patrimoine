@@ -93,7 +93,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -899,7 +898,6 @@ footer{border-top:1px solid var(--border);padding:2rem 3rem;display:flex;justify
 </footer>
 
 <script>
-var EJS_PK='ZCidM7Vy8zQ3-y1m7', EJS_SID='service_qjg8xhe', EJS_TID='template_s7rbzlx';
 var modeCouple=false, stratTaux=[3,5,7,10], stratNoms=['Sécurité','Équilibré','Rendement','All-in'], stratActif=1;
 
 // Scroll reveal + fade-in au chargement de section
@@ -1038,8 +1036,34 @@ function submitForm(){
   var btn=document.getElementById('submit-btn'),prenom=document.getElementById('f-prenom').value.trim(),nom=document.getElementById('f-nom').value.trim(),email=document.getElementById('f-email').value.trim(),tel=document.getElementById('f-tel').value.trim();
   if(!prenom||!nom||!email||!tel){alert('Merci de remplir les champs obligatoires.');return;}
   btn.textContent='Envoi en cours…';btn.disabled=true;
-  emailjs.init(EJS_PK);
-  emailjs.send(EJS_SID,EJS_TID,{to_email:'mickael.noel@swisslife.ch',from_name:prenom+' '+nom,from_email:email,telephone:tel,sujet:document.getElementById('f-sujet').value,dispo:document.getElementById('f-dispo').value,message:document.getElementById('f-message').value.trim()||'—'}).then(function(){document.getElementById('form-wrap').style.display='none';document.getElementById('success-msg').style.display='block';}).catch(function(err){btn.textContent='Envoyer ma demande';btn.disabled=false;alert('Erreur ('+JSON.stringify(err)+').');});
+  var data={
+    access_key:'c1e3fe82-9a6d-4d37-86a5-03fa6384e0bb',
+    subject:'Nouvelle demande - '+document.getElementById('f-sujet').value,
+    from_name:prenom+' '+nom,
+    Nom:prenom+' '+nom,
+    Email:email,
+    Telephone:tel,
+    Sujet:document.getElementById('f-sujet').value,
+    Disponibilites:document.getElementById('f-dispo').value,
+    Message:document.getElementById('f-message').value.trim()||'—',
+    replyto:email
+  };
+  fetch('https://api.web3forms.com/submit',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify(data)
+  }).then(function(r){return r.json();}).then(function(res){
+    if(res.success){
+      document.getElementById('form-wrap').style.display='none';
+      document.getElementById('success-msg').style.display='block';
+    }else{
+      btn.textContent='Envoyer ma demande';btn.disabled=false;
+      alert('Une erreur est survenue. Merci de réessayer.');
+    }
+  }).catch(function(){
+    btn.textContent='Envoyer ma demande';btn.disabled=false;
+    alert('Une erreur est survenue. Merci de réessayer.');
+  });
 }
 
 calcRetraite();
